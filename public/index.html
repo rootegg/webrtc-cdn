@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>webrtc测试</title>
+  </head>
+  <body>
+    <input id="input" value="12" /><button id="send"">发送</button>
+    <div id="console"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/bus.js"></script>
+    <script src="/javascripts/io.js"></script>
+    <script src="/javascripts/pc.js"></script>
+    <script src="/javascripts/dom.js"></script>
+    <script>
+      // window.addEventListener("load", function () {
+      //   if ("serviceWorker" in navigator) {
+      //     navigator.serviceWorker.register("/sw.js");
+      //     navigator.serviceWorker.addEventListener("message", function (event) {
+      //       console.log("收到消息sw->html", event.data);
+      //       if (event.data?.cmd == "request_source") {
+      //         // 发起远端请求
+      //         onSendP2PRequestSource(event.data);
+      //       } else if (event.data?.cmd == "response_source") {
+      //         // 本地sw检查cache返回
+      //         onSendP2PResponseSource(event.data);
+      //       }
+      //     });
+      //   }
+      // });
+    </script>
+  </body>
+</html>
