@@ -8,10 +8,14 @@
   </head>
   <body>
     <div>
-      <input id="input" value="12" /><button id="send"">发送</button>
+      <button id="playvideo">开始视频</button>
+      <video id="local-video" autoplay muted playsinline />
+      <div id="remote-videos"></div>
     </div>
+    <div><input id="input" value="12" /><button id="send">发送</button></div>
     <div>
-      <input id="input-img" value="2.jpg" /><button id="request">请求</button><img id="img"/>
+      <input id="input-img" value="2.jpg" /><button id="request">请求</button
+      ><img id="img" />
     </div>
     <div id="console"></div>
     <script src="/socket.io/socket.io.js"></script>

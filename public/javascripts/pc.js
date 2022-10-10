@@ -26,6 +26,9 @@ EventBus.on(PC_EVENT, (msg) => {
     case PC_EVENT_RESPONSE_SOURCE:
       peerConnManager.sendTo(payload, payload.from);
       break;
+    case PC_EVENT_ADDTRACK:
+      peerConnManager.addTrack(payload);
+      break;
   }
 });
 
@@ -77,6 +80,13 @@ class PeerConnManager {
       .find((pc) => pc.remoteUuid == remoteUuid)
       .sendData(JSON.stringify(data));
   }
+
+  // 加入视频流
+  addTrack(data) {
+    this.allPcList.forEach((pc) => {
+      pc.addTrack(data);
+    });
+  }
 }
 
 class PeerConn {
@@ -99,6 +109,11 @@ class PeerConn {
 
   sendData(msgString) {
     this.sendChannel.send(msgString);
+  }
+
+  addTrack(data) {
+    const { track, mediaStream } = data;
+    this.pc.addTrack(track, mediaStream);
   }
 
   createPeerConnection(remoteUuid) {
@@ -143,10 +158,22 @@ class PeerConn {
   closePeerConnection() {
     this.pc?.close?.();
     this.pc = null;
+    // 关闭界面video
+    EventBus.emit(PC_EVENT, {
+      type: PC_EVENT_REMOVE_VIDEOTRACK,
+      payload: this.remoteUuid,
+    });
   }
 
   ontrack(evt) {
     console.log("ontrack", evt);
+    EventBus.emit(PC_EVENT, {
+      type: PC_EVENT_ADD_VIDEOTRACK,
+      payload: {
+        from: this.remoteUuid,
+        stream: evt.streams[0],
+      },
+    });
   }
 
   async onnegotiationneeded() {
