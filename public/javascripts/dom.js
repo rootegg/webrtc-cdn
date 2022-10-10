@@ -19,6 +19,23 @@ EventBus.on(PC_EVENT, (msg) => {
       document.getElementById("console").innerHTML =
         document.getElementById("console").innerHTML + payload + "<br/>";
       break;
+    case PC_EVENT_ADD_VIDEOTRACK:
+      let remoteVideoDom = document.getElementById(payload.from);
+      if (remoteVideoDom) return;
+      // 新建远程video标签
+      remoteVideoDom = document.createElement("video");
+      remoteVideoDom.setAttribute("id", payload.from);
+      remoteVideoDom.setAttribute("autoplay", true);
+      remoteVideoDom.setAttribute("controls", "controls");
+      // remoteVideoDom.setAttribute("muted", "muted");
+      // remoteVideoDom.setAttribute("playsinline", "playsinline");
+      document.getElementById("remote-videos").appendChild(remoteVideoDom);
+      remoteVideoDom.srcObject = payload.stream;
+      break;
+    case PC_EVENT_REMOVE_VIDEOTRACK:
+      const videoDom = document.getElementById(payload);
+      videoDom && videoDom.parentNode.removeChild(videoDom);
+      break;
   }
 });
 
@@ -35,6 +52,25 @@ document.getElementById("request").addEventListener("click", function () {
     .getElementById("img")
     .setAttribute("src", document.getElementById("input-img").value);
 });
+
+document
+  .getElementById("playvideo")
+  .addEventListener("click", async function () {
+    const localVideo = document.getElementById("local-video");
+    const mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    localVideo.srcObject = mediaStream;
+    mediaStream.getTracks().forEach((track) => {
+      // pc.addTrack(track, mediaStream);
+      EventBus.emit(PC_EVENT, {
+        type: PC_EVENT_ADDTRACK,
+        payload: { track, mediaStream },
+      });
+    });
+  });
 
 function onSendP2PRequestSource(data) {
   EventBus.emit(PC_EVENT, {
