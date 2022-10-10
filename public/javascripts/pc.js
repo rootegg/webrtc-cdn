@@ -95,6 +95,8 @@ class PeerConn {
   sendChannel = null;
   receiveChannel = null;
 
+  isTrack = false;
+
   iceConfig = {
     iceServers: [
       { url: `stun:175.178.1.249:3478` },
@@ -140,13 +142,12 @@ class PeerConn {
     this.pc.ontrack = this.ontrack.bind(this);
 
     // p2p聊天、发送文件
-    this.sendChannel = this.pc.createDataChannel("sendChannel", {
-      ordered: true,
-      negotiated: true,
-      id: 0,
-    });
-    this.sendChannel.onmessage = this.onReceiveMessageCallback;
-    // this.sendChannel.send(JSON.stringify({ a: 1 }));
+    // this.sendChannel = this.pc.createDataChannel("sendChannel", {
+    //   ordered: true,
+    //   negotiated: true,
+    //   id: 0,
+    // });
+    // this.sendChannel.onmessage = this.onReceiveMessageCallback;
   }
 
   handleReceiveAnswer(payload) {
@@ -167,6 +168,8 @@ class PeerConn {
 
   ontrack(evt) {
     console.log("ontrack", evt);
+    if (this.isTrack) return;
+    this.isTrack = true;
     EventBus.emit(PC_EVENT, {
       type: PC_EVENT_ADD_VIDEOTRACK,
       payload: {
