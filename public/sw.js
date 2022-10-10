@@ -9,7 +9,6 @@ self.addEventListener("activate", (event) => {
 });
 const requestPromiseMap = new Map();
 self.addEventListener("fetch", (event) => {
-  console.log("运行中，拦截请求", event.request);
   event.respondWith(
     caches.open(cacheName).then((cache) => {
       return cache.match(event.request.url).then((cachedResponse) => {
@@ -21,6 +20,7 @@ self.addEventListener("fetch", (event) => {
           event.request.method == "GET" &&
           ["image"].includes(event.request.destination)
         ) {
+          console.log("运行中，拦截请求", event.request);
           // p2p 远端请求
           return new Promise((resolve, reject) => {
             requestPromiseMap.set(event.request.url, { resolve, reject });
@@ -64,6 +64,7 @@ self.addEventListener("message", function (event) {
             .arrayBuffer()
             .then((buffer) => {
               postToHtml({
+                from: event.data.from,
                 cmd: "response_source",
                 url: event.data.url,
                 data: String.fromCharCode.apply(null, new Uint16Array(buffer)),
@@ -72,6 +73,7 @@ self.addEventListener("message", function (event) {
         } else {
           // 没有返回空
           postToHtml({
+            from: event.data.from,
             cmd: "response_source",
             url: event.data.url,
             data: "",
@@ -81,7 +83,9 @@ self.addEventListener("message", function (event) {
     });
   } else if (event.data?.cmd == "response_source") {
     // 本地收到远端返回 资源请求response消息
+    if (!requestPromiseMap.has(event.data.url)) return;
     const requestPromise = requestPromiseMap.get(event.data.url);
+    requestPromiseMap.delete(event.data.url);
     if (event.data.data) {
       // 从远端拿到资源
       requestPromise.resolve(event.data.data);

@@ -20,6 +20,12 @@ EventBus.on(PC_EVENT, (msg) => {
     case PC_EVENT_SEND_DATA:
       peerConnManager.sendToAll(payload);
       break;
+    case PC_EVENT_REQUEST_SOURCE:
+      peerConnManager.sendToAll(payload);
+      break;
+    case PC_EVENT_RESPONSE_SOURCE:
+      peerConnManager.sendTo(payload, payload.from);
+      break;
   }
 });
 
@@ -59,14 +65,17 @@ class PeerConnManager {
   }
 
   // 群发消息
-  sendToAll(msg, remoteUuid) {
-    if (remoteUuid) {
-      this.allPcList
-        .find((pc) => pc.remoteUuid == remoteUuid)
-        .sendData(JSON.stringify(msg));
-    } else {
-      this.allPcList.forEach((pc) => pc.sendData(JSON.stringify(msg)));
-    }
+  sendToAll(data) {
+    console.log("发送消息sendToAll", data);
+    this.allPcList.forEach((pc) => pc.sendData(JSON.stringify(data)));
+  }
+
+  // 发消息
+  sendTo(data, remoteUuid) {
+    console.log("发送消息sendTo", remoteUuid, data);
+    this.allPcList
+      .find((pc) => pc.remoteUuid == remoteUuid)
+      .sendData(JSON.stringify(data));
   }
 }
 
@@ -212,6 +221,7 @@ class PeerConn {
   // 远端收到消息
   onReceiveMessageCallback(evt) {
     const data = JSON.parse(evt.data);
+    console.log("收到消息", evt.data);
     // 判断是请求资源文件请求
     if (data?.cmd == "request_source") {
       // 去本地sw的cache中查找
